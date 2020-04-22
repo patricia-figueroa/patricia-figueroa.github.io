@@ -35,7 +35,10 @@ Timer de 2 segundos
 </code></pre>
 <p>Como puede observar, la ejecución anterior no es síncrona, es decir, que se ejecuta una instrucción y posteriormente la siguiente, ésta es asíncrona, es decir que mientras el hilo de la aplicación continua la ejecución normal del código puede hacer algo mas, en este caso esperar cierto tiempo.  Sin embargo,<br>
 ¿Cómo funciona internamente?, ¿Por qué el primer timeout no previene la ejecución del resto del programa ?, ¿Por qué el timeout establecido en 0 segundos se ejecuta después de la impresión en consolada “Finishing Up”?. En la siguiente figura animada se explica y se da respuesta a estas preguntas.</p>
-<p><a href="http://www.youtube.com/watch?v=u2qpsyNeDf0" title="Cómo funciona la programación asíncrona en Node.js"><img src="http://img.youtube.com/vi/u2qpsyNeDf0/0.jpg" alt=""></a></p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/u2qpsyNeDf0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 <h2 id="peticiones-http">Peticiones HTTP</h2>
 <p>¿Por qué las peticiones HTTP son importantes?, porque es el mecanismo mediante el cual una aplicación es capaz de comunicarse con el mundo exterior. Son el núcleo de la construcción de aplicaciones del mundo real, comunicándose realmente con el exterior.</p>
 <p><strong>Por ejemplo:</strong> Para obtener la información del clima de una ubicación en específico, se enviaría la ubicación a un servidor el cual accede a la información del clima de dicha ubicación y la regresa a la aplicación solicitante para que la utilice como desee.</p>
@@ -45,9 +48,13 @@ Timer de 2 segundos
 <li>Una vez registrado los enviará a la Guía Rápida, la cual proporciona la información necesaria para obtener información del clima en tiempo real. Podrán visualizar la <strong>llave de acceso al API</strong> la cual es ua cadena de caracteres generada de manera aleatoria que será única para cada aplicación que la utilice. Esta se utilizará para autenticarse cuando se realicen peticiones a WeatherStack desde la aplicación, de tal manera que ésta permite enlazarse con el servidor de WewatherStack. Además, podrá observar los <strong>endpoints</strong> soportados por el API, los cuales proporcionan el acceso a distintos servicios proporcionados por WeatherStack, de manera gratuita solo se puede hacer uso de el endopoint <strong>/current</strong> para acceder al clima actual de una ubicación en específico.</li>
 <li>Probar el API obteniendo la temperatura actual del estado de Colima, para esto deberá ver el video adjunto a continuación.</li>
 </ol>
-<p><a href="http://www.youtube.com/watch?v=5NJunvgT600" title="Cómo utilizar el API de WeatherStack"><img src="http://img.youtube.com/vi/5NJunvgT600/0.jpg" alt=""></a></p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/5NJunvgT600" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 <p>Para construir la primera parte de la aplicación meteorológica en Node.Js deberá ver la videoclase adjunta a continuación.</p>
-<p><a href="http://www.youtube.com/watch?v=Gq_mBd1hwzc" title="Aplicación Meteorológica (Parte 1) en Node.js"><img src="http://img.youtube.com/vi/Gq_mBd1hwzc/0.jpg" alt=""></a></p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Gq_mBd1hwzc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 </div>
 </body>
 
