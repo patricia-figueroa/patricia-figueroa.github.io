@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>index</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="programación-asíncrona-con-node.js">Programación Asíncrona con Node.js</h1>
+<p><strong>Node.js</strong> es un entorno de ejecución de <em>JavaScript</em> orientado a <strong>eventos asíncronos</strong>, <strong>no bloqueante</strong> (aplicaciones que pueden ejecutar otas otras actividades mientras espera a terminar con un proceso completo de e/s) y  <strong>de hilo único</strong>, diseñado para construir aplicaciones escalables en red.</p>
+<p>En este tema se explorará la programación asíncrona de Node.js mediante un programa básico, para posteriormente construir una aplicación meteorológica, interactuando con un API de clima en tiempo real  mediante la realización de peticiones asíncronas con HTTP.</p>
+<h2 id="ejemplo-básico-de-programación-asíncrona">Ejemplo Básico de Programación Asíncrona</h2>
+<p>Una de las funciones asíncronas más básicas que Node.js proporciona es la función <code>setTimeout</code>, la cual permite ejecutar cierto código después de que transcurre un tiempo específico. Esta función toma dos argumentos, el primero es una función y el segundo es un número en milisegundos que se desea que transcurra antes de que el callback se ejecute.</p>
+<pre class=" language-javascript"><code class="prism  language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Starting up"</span><span class="token punctuation">)</span>
+
+<span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Two Seconds"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token number">2000</span><span class="token punctuation">)</span>
+
+<span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Zero seconds"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Finishing Up"</span><span class="token punctuation">)</span>
+</code></pre>
+<hr>
+<p><strong>Output:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">Iniciando
+Parando  
+Timer de 0 segundos
+Timer de 2 segundos
+</code></pre>
+<p>Como puede observar, la ejecución anterior no es síncrona, es decir, que se ejecuta una instrucción y posteriormente la siguiente, ésta es asíncrona, es decir que mientras el hilo de la aplicación continua la ejecución normal del código puede hacer algo mas, en este caso esperar cierto tiempo.  Sin embargo,<br>
+¿Cómo funciona internamente?, ¿Por qué el primer timeout no previene la ejecución del resto del programa ?, ¿Por qué el timeout establecido en 0 segundos se ejecuta después de la impresión en consolada “Finishing Up”?. En la siguiente figura animada se explica y se da respuesta a estas preguntas.</p>
+<p><a href="http://www.youtube.com/watch?v=u2qpsyNeDf0" title="Cómo funciona la programación asíncrona en Node.js"><img src="http://img.youtube.com/vi/u2qpsyNeDf0/0.jpg" alt=""></a></p>
+<h2 id="peticiones-http">Peticiones HTTP</h2>
+<p>¿Por qué las peticiones HTTP son importantes?, porque es el mecanismo mediante el cual una aplicación es capaz de comunicarse con el mundo exterior. Son el núcleo de la construcción de aplicaciones del mundo real, comunicándose realmente con el exterior.</p>
+<p><strong>Por ejemplo:</strong> Para obtener la información del clima de una ubicación en específico, se enviaría la ubicación a un servidor el cual accede a la información del clima de dicha ubicación y la regresa a la aplicación solicitante para que la utilice como desee.</p>
+<p>Para comprender su utilización, se realizará una aplicación Node que permite mediante peticiones HTTP realizar peticiones aun servidor para poder realizar algunas tareas y obtener una respuesta a dicha petición. En este caso, se realizará una aplicación meteorlógica utilizando el API de clima de  <a href="https://weatherstack.com/">WeatherStack</a>  para su utilización deberá seguir los pasos siguientes:</p>
+<ol>
+<li>Registrarse en <a href="https://weatherstack.com/">WeatherStack</a>  es totalmente gratis.</li>
+<li>Una vez registrado los enviará a la Guía Rápida, la cual proporciona la información necesaria para obtener información del clima en tiempo real. Podrán visualizar la <strong>llave de acceso al API</strong> la cual es ua cadena de caracteres generada de manera aleatoria que será única para cada aplicación que la utilice. Esta se utilizará para autenticarse cuando se realicen peticiones a WeatherStack desde la aplicación, de tal manera que ésta permite enlazarse con el servidor de WewatherStack. Además, podrá observar los <strong>endpoints</strong> soportados por el API, los cuales proporcionan el acceso a distintos servicios proporcionados por WeatherStack, de manera gratuita solo se puede hacer uso de el endopoint <strong>/current</strong> para acceder al clima actual de una ubicación en específico.</li>
+<li>Probar el API obteniendo la temperatura actual del estado de Colima, para esto deberá ver el video adjunto a continuación.</li>
+</ol>
+<p><a href="http://www.youtube.com/watch?v=5NJunvgT600" title="Cómo utilizar el API de WeatherStack"><img src="http://img.youtube.com/vi/5NJunvgT600/0.jpg" alt=""></a></p>
+<p>Para construir la primera parte de la aplicación meteorológica en Node.Js deberá ver la videoclase adjunta a continuación.</p>
+<p><a href="http://www.youtube.com/watch?v=Gq_mBd1hwzc" title="Aplicación Meteorológica (Parte 1) en Node.js"><img src="http://img.youtube.com/vi/Gq_mBd1hwzc/0.jpg" alt=""></a></p>
+</div>
+</body>
+
+</html>
