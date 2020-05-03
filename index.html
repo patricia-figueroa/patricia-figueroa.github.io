@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>index</title>
+  <title>Programación Asíncrona con Node.js</title>
   <link rel="stylesheet" href="https://stackedit.io/style.css" />
 </head>
 
@@ -105,7 +105,11 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p><a href="http://www.youtube.com/watch?v=EVcs7jVJ1QI"><br>
 <img src="http://img.youtube.com/vi/EVcs7jVJ1QI/0.jpg" alt=""></a></p>
 <p>Como se puede observar en el vídeo, el servicio de geocoding regresa una respuesta en donde el body de igual manera se analizará como JSON de manera automática, permitiendo a la longitud y latitud a través del atributo “features”, que  regresa un arreglo de elementos. Por defecto, regresa una colección de elementos, ya que el texto a geocodificar coincide con algo más; sin embargo, el primer elemento del array es en el que  es el más relevante en la búsqueda y es el que generalmente se utiliza, de lo contrario tiene que analizar el resto de los elementos regresados en la respuesta. Además, se puede utilizar la propiedad <code>place_name</code> para desplegar el nombre del lugar al usuario, exactamente el lugar que corresponde con la dirección proporcionada en cuanto a latitud y longitud, las cuales se devuelven a través de la propiedad <code>center</code>.  Otro parámetro importante es el atributo <code>languaje</code> para personalizar la respuesta a español o cualquier otro idioma. De igual manera, el parámetro <code>limit</code> se puede configurar para que regrese sólo el primer elemento más relevante de la búsqueda.</p>
-<p>Ahora bien, las solicitudes al servicio de WeatherStack y de Mapbox, se ejecutan de manera aislada y hasta el momento sin un manejo de errores. En el siguiente video se explica cómo se debe realizar el menejo de erroes, ya sean errores de bajo nivel como problemas de conectividad o errores de alto nivel como errores en el ingreso o ausencia de los parámetors necesarios para la petición HTTP.</p>
+<p>Ahora bien, las solicitudes al servicio de WeatherStack y de Mapbox, se ejecutan de manera aislada y hasta el momento sin un manejo de errores. En el siguiente video se explica cómo se debe realizar el manejo de errores, ya sean errores de bajo nivel como problemas de conectividad o errores de alto nivel como errores en el ingreso o ausencia de los parámetros necesarios para la petición HTTP.</p>
+<h4 id="actividad-3">Actividad</h4>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Vea el siguiente video para integrar en su aplicación meteorológica el manejo de errores de bajo nivel y de alto nivel.</li>
+</ul>
 <p><mark>Quinta Parte: Aplicación Meteorológica, Manejo de Errores</mark></p>
 <hr>
 <p><a href="http://www.youtube.com/watch?v=PxNfdodT9Q8"><img src="http://img.youtube.com/vi/PxNfdodT9Q8/0.jpg" alt=""></a></p>
@@ -118,6 +122,10 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>Es importante tener en cuenta que cuando se pasa un <em>callback</em> solo se pasa la definición de la función y la función contenedora elige cuándo ejecutar el callback. El uso del <em>callback</em> también se conoce como <em>callback pattern</em>, puesto que es esencialmente un patrón de diseño en el desarrollo de sistemas, al ser una solución para problemas comunes , ayudando a no repetir código. Por otro lado, los <em>callbacks</em> son muy útiles para manejar la programación asíncrona en Node.js</p>
 <h4 id="el-patrón-de-diseño-callback">El patrón de diseño Callback</h4>
 <p>Cómo se mencionó, un <strong>callback</strong> (llamada de vuelta) es una <strong>función</strong> que recibe como argumento otra <strong>función</strong> y es invocada cuando el resultado de la operación se completa. En la programación funcional esta forma de propagar el resultado es llamada <strong>continuation-passing style</strong> (CPS). Es un concepto general y no es asociado siempre con operaciones asíncronas, sólo indica que un resultado es propagado mediante el paso de este a otra función (la función callback), en lugar de regresar directamente a la función que lo llama. Para clarificar el concepto analicemos la siguiente explicación demostrativa en un video.</p>
+<h4 id="actividad-4">Actividad</h4>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Vea el siguiente video para comprender el funcionamiento del patrón de diseño Callback.</li>
+</ul>
 <p><mark>Funcionamiento de los Callback en Node.js</mark><br>
 <a href="http://www.youtube.com/watch?v=tGH88apAH90"><img src="http://img.youtube.com/vi/tGH88apAH90/0.jpg" alt=""></a></p>
 <h5 id="explicación-detallada">Explicación detallada</h5>
@@ -163,6 +171,16 @@ Después
 Result: 3
 </code></pre>
 <p>Dado que <code>setTimeout ()</code> desencadena una operación asincrónica, ya no esperará a que se ejecute la devolución de llamada, sino que, en cambio, regresa inmediatamente y devuelve el control a <code>addAsync ()</code>, y luego regresa a la instrucción que la manda llamar. Esta propiedad de Node.js es crucial, ya que permite que la pila se desenrolle y que el control se devuelva al bucle de eventos tan pronto como se envíe una solicitud asincrónica, permitiendo así que se procese un nuevo evento de la cola; por lo cual, se ejecuta el <code>console.log('Después')</code> al no esperar a que la función <code>callback</code>termine su ejecución.</p>
+<h4 id="actividad-5">Actividad</h4>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Reestructure la función para solicitar el pronóstico como un callback.</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Reestructure la función para solicitar la geocodificación de una ubicación para obtener su latitud y longitud como una función callback.</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Enecadene ambas funciones para asegurarse que se ejecute primero el servicio de geocodificación y posteriormente el de la solicitud del climra</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="">  Vea el siguiente video para comprender  cómo hacer los puntos anterirores.</li>
+</ul>
+<p><mark>Sexta Parte: Aplicación Meteorológica</mark></p>
+<hr>
+<p><a href="http://www.youtube.com/watch?v=De0NAwwAxkA"><img src="http://img.youtube.com/vi/De0NAwwAxkA/0.jpg" alt=""></a></p>
 </div>
 </body>
 
