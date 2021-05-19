@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Programación Asíncrona con Node.js</title>
+  <title>index</title>
   <link rel="stylesheet" href="https://stackedit.io/style.css" />
 </head>
 
@@ -34,15 +34,148 @@ Timer de 0 segundos
 Timer de 2 segundos
 </code></pre>
 <p>Como puede observar, la ejecución anterior no es síncrona, es decir, que se ejecuta una instrucción y posteriormente la siguiente, ésta es asíncrona, es decir que mientras el hilo de la aplicación continua la ejecución normal del código puede hacer algo mas, en este caso esperar cierto tiempo.  Sin embargo,<br>
-¿Cómo funciona internamente?, ¿Por qué el primer timeout no previene la ejecución del resto del programa ?, ¿Por qué el timeout establecido en 0 segundos se ejecuta después de la impresión en consolada “Finishing Up”?. En la siguiente figura animada se explica y se da respuesta a estas preguntas.</p>
+¿Cómo funciona internamente?, ¿Por qué el primer timeout no previene la ejecución del resto del programa ?, ¿Por qué el timeout establecido en 0 segundos se ejecuta después de la impresión en consola “Finishing Up”?. En la siguiente figura animada se explica y se da respuesta a estas preguntas.</p>
 <p><a href="http://www.youtube.com/watch?v=u2qpsyNeDf0" title="Cómo funciona la programación asíncrona en Node.js"><img src="http://img.youtube.com/vi/u2qpsyNeDf0/0.jpg" alt=""></a></p>
+<h2 id="callbacks">Callbacks</h2>
+<p>En el ejemplo anterior, como se puede observar, la función setTimeout recibe como argumento otra función , en este caso, definida como una función flecha.  El hecho de llamar primero la función setTimeout de dos segundos no significa que será ejecutada antes de la función con 0 segundos.</p>
+<p>En esto, los <strong>callbacks</strong> son de utilidad, ya que <em><strong>permiten que cierto código no se ejecute antes de la ejecución de otro código</strong></em>.  Por lo tanto, utilizamos callbacks cuando se desea asegurar que una función será ejecutada justo después de que la tarea ha sido completada.</p>
+<p><em><strong>¿Qué es un Callback?</strong></em>  :</p>
+<blockquote>
+<p>Un <strong>callback</strong> (llamada de vuelta) es una <strong>función</strong> que recibe como argumento otra <strong>función</strong> y es invocada cuando el resultado de la operación se completa.  El uso del <em>callback</em> también se conoce como <em>callback pattern</em>, puesto que es esencialmente un patrón de diseño en el desarrollo de sistemas, al ser una solución para problemas comunes , ayudando a no repetir código.</p>
+</blockquote>
+<p>Es importante tener en cuenta que cuando se pasa un <em>callback</em> solo se pasa la definición de la función y la función contenedora elige cuándo ejecutar el callback.</p>
+<h4 id="el-patrón-de-diseño-callback">El patrón de diseño Callback</h4>
+<p>Antes de entrar en detalle en el patrón de diseño “callback” es importante analizar dos estilos de programación para la propagación de un resultado. El primer estilo de programación y el más usual es el <strong>direct-style</strong> y el segundo estilo de programación para la propagación de un resultado es el <strong>continuation-passing-style (CPS)</strong></p>
+<p>CPS es un concepto general y no es asociado siempre con operaciones asíncronas, sólo indica que un resultado es propagado mediante el paso de este a otra función (la función callback), en lugar de regresar directamente a la función que lo llama.</p>
+<h4 id="actividad">Actividad</h4>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Vea el siguiente video para comprender el funcionamiento del patrón de diseño Callback.</li>
+</ul>
+<iframe width="788" height="443" src="https://www.youtube.com/embed/wNrFRSrPrew" title="YouTube video player" allowfullscreen=""></iframe>
+<h5 id="explicación-detallada">Explicación detallada</h5>
+<p>Analicemos el siguiente script  de JavaScript  y la función síncrona siguiente:</p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">const</span> <span class="token function-variable function">suma</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span>b<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token keyword">return</span> a<span class="token operator">+</span>b
+<span class="token punctuation">}</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token function">suma</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<pre class=" language-markup"><code class="prism  language-markup">OUTPUT:
+9
+</code></pre>
+<p>No hay nada especial aquí; el resultado se devuelve cuando se manda llamar la función mediante la instrucción <code>return</code> , en donde se emplea  el estilo de programación “direct-style” para la propagación del resultado.</p>
+<p>Ahora, esa función se puede replantear usando el estilo <strong>continuation-passin style</strong> , quedando de la siguiente manera:</p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">const</span> <span class="token function-variable function">suma</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span>b<span class="token punctuation">,</span>callback<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">callback</span><span class="token punctuation">(</span>a<span class="token operator">+</span>b<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">miCallback</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>resultado<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"El resultado desde la función callback es: "</span><span class="token punctuation">,</span> resultado<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">suma</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span>miCallback<span class="token punctuation">)</span>
+</code></pre>
+<pre class=" language-markup"><code class="prism  language-markup">OUTPUT:
+El resultado desde la función callback es:  9
+</code></pre>
+<p>Cómo se puede observar en la llamada a función, suma expresada en la línea <code>suma(5,4,miCallback)</code> , se pasa como argumento la referencia a la función <code>miCallback()</code>  . Por tanto, en la definición de la función suma, expresada en la línea <code>const suma = function(a,b,callback)</code> se recibe esta referencia en el argumento renombrado como <code>callback</code>  y dentro de la función suma se manda llamar la función callback mediante el nombre del argumento <code>callback</code> que tiene la referencia a la función <code>miCallback()</code> la cual recibirá como parámetro el resultado de la suma <code>a+b</code> desde la función <code>suma()</code>.</p>
+<p>Como se puede observar, mediante el estilo CPS se puede implementar una función <strong>callback síncrona</strong>.  Para comprobar el orden de ejecución de la función callback sincrona se agregan en el mismo script dos <code>console.log</code> como se ilustra a continuación.</p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">const</span> <span class="token function-variable function">suma</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span>b<span class="token punctuation">,</span>callback<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">callback</span><span class="token punctuation">(</span>a<span class="token operator">+</span>b<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">miCallback</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>resultado<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"El resultado desde la función callback es: "</span><span class="token punctuation">,</span> resultado<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Antes de función callback"</span><span class="token punctuation">)</span>
+<span class="token function">suma</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span>miCallback<span class="token punctuation">)</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Despues de función callback"</span><span class="token punctuation">)</span>
+</code></pre>
+<p>La función <code>add()</code> es una función CPS síncrona, lo que significa que regresará el valor sólo cuando el callback compete su ejecución. El siguiente código demuestra esto:</p>
+<p>Para visualizar el orden de ejecución de esta función callback síncrona</p>
+<pre class=" language-javascript"><code class="prism  language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Antes'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">add</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Result: '</span> <span class="token operator">+</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Despues'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<pre class=" language-markup"><code class="prism  language-markup">OUTPUT:
+Antes de función callback
+El resultado desde la función callback es:  9
+Despues de función callback
+</code></pre>
+<p>Como se puede observar la ejecución de las instrucciones se realiza de manera síncrona en el orden esperado y establecido.</p>
+<p>Ahora, consideremos el caso donde la función <code>suma()</code> es asíncrona, que es la siguiente:</p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">const</span> <span class="token function-variable function">suma</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span>b<span class="token punctuation">,</span>callback<span class="token punctuation">)</span><span class="token punctuation">{</span>
+<span class="token keyword">var</span> resultado<span class="token punctuation">;</span>
+	<span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		resultado <span class="token operator">=</span> a <span class="token operator">+</span> b
+		<span class="token function">callback</span><span class="token punctuation">(</span>a<span class="token operator">+</span>b<span class="token punctuation">)</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token number">3000</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">miCallback</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>resultado<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"El resultado desde la función callback es: "</span><span class="token punctuation">,</span> resultado<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Antes de función callback"</span><span class="token punctuation">)</span>
+<span class="token function">suma</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span>miCallback<span class="token punctuation">)</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Despues de función callback"</span><span class="token punctuation">)</span>
+</code></pre>
+<pre class=" language-markup"><code class="prism  language-markup">OUTPUT:
+Antes de función callback
+Despues de función callback
+El resultado desde la función callback es:  9
+</code></pre>
+<p>En el código anterior, simplemente usamos <code>setTimeout ()</code> para simular una invocación asincrónica de la función callback. Al mandar llamar la función se podrá observar como cambia el orden de las operaciones como se puede ver el <code>OUTPUT</code>.</p>
+<p>Dado que <code>setTimeout ()</code> desencadena una operación asincrónica, ya no esperará a que se ejecute el callback, sino que, en cambio, regresa inmediatamente y devuelve el control a <code>suma()</code>, y luego regresa a la instrucción que la manda llamar. Esta propiedad de Node.js es crucial, ya que permite que la pila se desenrolle y que el control se devuelva al bucle de eventos tan pronto como se envíe una solicitud asincrónica, permitiendo así que se procese un nuevo evento de la cola; por lo cual, se ejecuta el <code>console.log('Después de función callback')</code> al no esperar a que la función <code>callback</code> termine su ejecución.</p>
+<p>Por lo tanto, los <em>callbacks</em> son muy útiles para manejar la programación asíncrona en Node.js</p>
+<p>A continuación se presentan otros dos ejemplos de un callback síncrono y uno asíncrono, y posteriormente se explica brevemente.</p>
+<ul>
+<li><em>Ejemplo de callback asíncrono</em>: segundo parámetro del método <code>addEventListener()</code></li>
+<li><em>Ejemplo de callback síncrono</em>: método <code>filter()</code> de una array</li>
+</ul>
+<pre class=" language-javascript"><code class="prism  language-javascript">window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'beforeunload'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">alert</span><span class="token punctuation">(</span><span class="token string">'¿Seguro que quieres salir?'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>El ejemplo anterior utiliza una función de un <em><strong>callback asíncrono</strong></em> ya que requiere la función callback, en este caso anónima, complemente su ejecución hasta que sucede un evento a través del <code>addEventListener</code> y el método <code>beforeunload</code>.</p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">const</span> array <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span>
+<span class="token keyword">const</span> <span class="token function-variable function">isEvenNumber</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token keyword">return</span> num <span class="token operator">%</span> <span class="token number">2</span> <span class="token operator">===</span> <span class="token number">0</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">const</span> even <span class="token operator">=</span> array<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>isEvenNumber<span class="token punctuation">)</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>even<span class="token punctuation">)</span>
+</code></pre>
+<p>Mientras que el ejemplo anterior es un ejemplo de un callback síncrono que hereda el estilo <strong>continuation-passing-style</strong>; sin embargo, es síncrono ya que ésta no espera por un evento, sólo el resultado es propagada a través de la llamada a la función <code>isEvenNumber</code>, quien realiza un proceso para que la función <code>filter()</code> del array complete su ejecución recibiendo este resultado.</p>
+<h5 id="conclusión-sobre-callbacks">Conclusión sobre Callbacks</h5>
+<p>Node.js depende en gran medida de la <em><strong>programación asíncrona</strong></em>, de tal forma que <em>no se bloquea en una tarea y puede moverse a la siguiente</em>. Los <em><strong>callbacks ayudan a desempeñar ciertas tareas una vez que la tarea asíncrona se ha ejecutado</strong></em>, como por ejemplo la solicitud de información a un servidor remoto mediante alguna API.</p>
+<p>Otro ejemplo claro es el siguiente, donde se podrá observar que el programa finaliza primero y  una vez que se lee el archivo, genera el contenido del archivo, lo cual se realiza mediante  la función callback.</p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">var</span> fs <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"fs"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+fs<span class="token punctuation">.</span><span class="token function">readFile</span><span class="token punctuation">(</span><span class="token string">'input.txt'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>err<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+		<span class="token keyword">return</span> console<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">else</span>
+		console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Program Ended"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h4 id="actividad-1">Actividad</h4>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Codifique el ejemplo anterior, leyendo cualquier archivo de texto y verifique su resultado (ejercicio realizado en clases)</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Recuerde que la idea básica de un callback es pasar una función como argumento de otra función. Piense en un ejemplo, codifíquelo y muestre su resultado usando el estilo CPS (ejercicio realizado en clases, si es necesario reestructure  y vuelva a subir a la actividad).</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="">  Considere el ejemplo de la función <code>suma()</code> asíncrona explicado en el video y en la sección anterior. Tomándolo como base realice un ejercicio para una función llamada <code>potencia()</code> simulando su asíncronia mediante un <code>setTimeout</code> de 10000, que permita mediante un ciclo <code>for</code> elevar al cuadrado los números del 1 al 1 000 000 e ingresarlos en un arreglo. Para esto deberá usar la función <code>Math.pow()</code> el método <code>push()</code> para ingresar los elementos al arreglo y  pasar la lista a la función callback mediante la llamada <code>callback(list)</code> . Agregue los console.log necesarios para demostrar el orden de ejecución. Muestre su resultado mediante un video corto en la actividad de classroom correspondiente y anexe el enlace a github.</li>
+</ul>
 <h2 id="peticiones-http">Peticiones HTTP</h2>
 <p>¿Por qué las peticiones HTTP son importantes?, porque es el mecanismo mediante el cual una aplicación es capaz de comunicarse con el mundo exterior. Son el núcleo de la construcción de aplicaciones del mundo real, comunicándose realmente con el exterior.</p>
 <p><strong>Por ejemplo:</strong> Para obtener la información del clima de una ubicación en específico, se enviaría la ubicación a un servidor el cual accede a la información del clima de dicha ubicación y la regresa a la aplicación solicitante para que la utilice como desee.</p>
-<p>Para comprender su utilización, se realizará una aplicación Node que permite mediante peticiones HTTP realizar peticiones aun servidor para poder realizar algunas tareas y obtener una respuesta a dicha petición. En este caso, se realizará una aplicación meteorológica utilizando el API de clima de  <a href="https://weatherstack.com/">WeatherStack</a>  para su utilización deberá seguir los pasos siguientes:</p>
+<h2 id="proyecto">Proyecto</h2>
+<h3 id="primer-parte">Primer Parte</h3>
+<p>Para comprender la utilización de las peticiones HTTP y la programación asíncrona con Node.js, se realizará una aplicación  que permite mediante peticiones HTTP realizar peticiones aun servidor para poder realizar algunas tareas y obtener una respuesta a dicha petición. En este caso, se realizará una aplicación meteorológica utilizando el API de clima de  <a href="https://weatherstack.com/">WeatherStack</a>  para su utilización deberá seguir los pasos siguientes:</p>
 <ol>
 <li>Registrarse en <a href="https://weatherstack.com/">WeatherStack</a>  es totalmente gratis.</li>
-<li>Una vez registrado los enviará a la Guía Rápida, la cual proporciona la información necesaria para obtener información del clima en tiempo real. Podrán visualizar la <strong>llave de acceso al API</strong> la cual es ua cadena de caracteres generada de manera aleatoria que será única para cada aplicación que la utilice. Esta se utilizará para autenticarse cuando se realicen peticiones a WeatherStack desde la aplicación, de tal manera que ésta permite enlazarse con el servidor de WewatherStack. Además, podrá observar los <strong>endpoints</strong> soportados por el API, los cuales proporcionan el acceso a distintos servicios proporcionados por WeatherStack, de manera gratuita solo se puede hacer uso de el endopoint <strong>/current</strong> para acceder al clima actual de una ubicación en específico.</li>
+<li>Una vez registrado los enviará a la Guía Rápida, la cual proporciona la información necesaria para obtener información del clima en tiempo real. Podrán visualizar la <strong>llave de acceso al API</strong> la cual es una cadena de caracteres generada de manera aleatoria que será única para cada aplicación que la utilice. Esta se utilizará para autenticarse cuando se realicen peticiones a WeatherStack desde la aplicación, de tal manera que ésta permite enlazarse con el servidor de WewatherStack. Además, podrá observar los <strong>endpoints</strong> soportados por el API, los cuales proporcionan el acceso a distintos servicios proporcionados por WeatherStack, de manera gratuita solo se puede hacer uso de el endopoint <strong>/current</strong> para acceder al clima actual de una ubicación en específico.</li>
 <li>Probar el API obteniendo la temperatura actual del estado de Colima, para esto deberá ver el video adjunto a continuación.</li>
 </ol>
 <p><mark>Cómo utilizar el API de WeatherStack.</mark></p>
@@ -64,7 +197,7 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p>Cómo se puede observar en el código anterior, se puede personalizar la petición HTTP indicando que la respuesta será analizada como <code>json</code> agregando el argumento <code>json:true</code> en el primer argumento del <code>request</code>.</p>
-<h4 id="actividad">Actividad</h4>
+<h4 id="actividad-2">Actividad</h4>
 <ul>
 <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Agregue en la petición <code>request</code> de su aplicación meteorológica en Node.js, el argumento <code>json.true</code>.</li>
 <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Ejecute su aplicación y compruebe el resultado.</li>
@@ -78,7 +211,7 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>Para cambiar el idioma y entregar el pronóstico en español al usuario, se debe  hacer uso de un servicio de traducción, el cual se detalla en el siguiente video.</p>
 <h3 id="inclusión-del-servicio-de-traducción.">Inclusión del servicio de traducción.</h3>
 <p>Debido a que el API de WeatherStack,mediante el acceso gratuito, no soporta el cambio de idioma de la respuesta que éste regresa, en esta sección se describe la introducción de un servicio de traducción gratuito utilizando el API de <code>npm</code> llamada <code>translate</code>.  Realice los pasos siguientes.</p>
-<h4 id="actividad-1">Actividad</h4>
+<h4 id="actividad-3">Actividad</h4>
 <ul>
 <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Instale el módulo npm en el proyecto usando el comando: <code>npm install translate</code>. Puede visualizar la documentación de este módulo en el enlace <a href="https://www.npmjs.com/package/translate-api">https://www.npmjs.com/package/translate-api</a></li>
 <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Dirigirse a <a href="https://tech.yandex.com/translate/">https://tech.yandex.com/translate/</a> y registrarse, para hacer uso de un servicio de traducción mediante el API de Yandex.</li>
@@ -88,100 +221,3 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p><mark>Tercera Parte: Aplicación Meteorológica</mark></p>
 <hr>
 <p><a href="http://www.youtube.com/watch?v=2zxdK1r7ujo"><img src="http://img.youtube.com/vi/2zxdK1r7ujo/0.jpg" alt=""></a></p>
-<h3 id="inclusión-del-servicio-de-geocoding">Inclusión del servicio de Geocoding</h3>
-<p>El <em>geocoding</em> es el proceso de tomar una dirección y convertirlo en una latitud y longitud, las cuales se pueden pasar al API de WeatherStack para solicitar la información del clima, aún cuando esta API permite solicitar la información con el nombre de la ubicación, es importante minimizar la posibilidad de errores, ya que lo ideal es hacer uso de la latitud y longitud de dicha ubicación para mejorar la exactitud de la aplicación y evitar el manejo de cadenas de caracteres.</p>
-<p>Ambas APIs se encadenarán para proporcionar el servicio necesario de aplicación meteorológica. Básicamente, el usuario proporciona la dirección, el API de Geocoding la convierte en latitud y logitud y se la proporciona al API de WeatherStack como parámetro para solicitar el clima de esa ubicación.</p>
-<p>Para esto es importante acceder a un servicio de geocoding, alguno de los proveedores de este tipo de servicios es <a href="http://www.mapbox.com">Mapbox</a>, el cual ofrece el servicio de Geocoding, permitiendo de manera gratuita realizar 25000 peticiones (más de lo que la aplicación meteorológica utilizará).  Para integrar este servicio en su aplicación siga los pasos siguientes:</p>
-<h4 id="actividad-2">Actividad</h4>
-<ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Instale el módulo <code>npm</code> en el proyecto usando el comando: <code>npm install translate</code>. Puede visualizar la documentación de este módulo en el enlace <a href="https://www.npmjs.com/package/translate">https://www.npmjs.com/package/translate</a></li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Dirigirse a <a href="https://tech.yandex.com/translate/">https://tech.yandex.com/translate/</a> y registrarse, para hacer uso de un servicio de traducción mediante el API de Yandex.</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Obtenga la llave de acceso o token de acceso para la utilización del API.</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Ver la documentación <a href="https://docs.mapbox.com/api/">https://docs.mapbox.com/api/</a> del menú Search Service. El servicio de Forward geocoding es el que se utilizará para ingresar una dirección y que nos regrese la latitud y longitud para pasarla al API de WeatherStack. Para poder acceder a dicho servicio la aplicación debe apuntar al <strong>endpoint</strong> <code>mapbox.places</code>.</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Vea el siguiente video para integrar en su aplicación meteorológica dicho servicio.</li>
-</ul>
-<p><mark>Cuarta Parte: Aplicación Meteorológica</mark></p>
-<hr>
-<p><a href="http://www.youtube.com/watch?v=EVcs7jVJ1QI"><br>
-<img src="http://img.youtube.com/vi/EVcs7jVJ1QI/0.jpg" alt=""></a></p>
-<p>Como se puede observar en el vídeo, el servicio de geocoding regresa una respuesta en donde el body de igual manera se analizará como JSON de manera automática, permitiendo a la longitud y latitud a través del atributo “features”, que  regresa un arreglo de elementos. Por defecto, regresa una colección de elementos, ya que el texto a geocodificar coincide con algo más; sin embargo, el primer elemento del array es en el que  es el más relevante en la búsqueda y es el que generalmente se utiliza, de lo contrario tiene que analizar el resto de los elementos regresados en la respuesta. Además, se puede utilizar la propiedad <code>place_name</code> para desplegar el nombre del lugar al usuario, exactamente el lugar que corresponde con la dirección proporcionada en cuanto a latitud y longitud, las cuales se devuelven a través de la propiedad <code>center</code>.  Otro parámetro importante es el atributo <code>languaje</code> para personalizar la respuesta a español o cualquier otro idioma. De igual manera, el parámetro <code>limit</code> se puede configurar para que regrese sólo el primer elemento más relevante de la búsqueda.</p>
-<p>Ahora bien, las solicitudes al servicio de WeatherStack y de Mapbox, se ejecutan de manera aislada y hasta el momento sin un manejo de errores. En el siguiente video se explica cómo se debe realizar el manejo de errores, ya sean errores de bajo nivel como problemas de conectividad o errores de alto nivel como errores en el ingreso o ausencia de los parámetros necesarios para la petición HTTP.</p>
-<h4 id="actividad-3">Actividad</h4>
-<ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Vea el siguiente video para integrar en su aplicación meteorológica el manejo de errores de bajo nivel y de alto nivel.</li>
-</ul>
-<p><mark>Quinta Parte: Aplicación Meteorológica, Manejo de Errores</mark></p>
-<hr>
-<p><a href="http://www.youtube.com/watch?v=PxNfdodT9Q8"><img src="http://img.youtube.com/vi/PxNfdodT9Q8/0.jpg" alt=""></a></p>
-<h3 id="utilización-de-funciones-callback">Utilización de funciones callback</h3>
-<p>Para que la aplicación funcione correctamente, en primera instancia se requiere encadenar ambas peticiones, de tal manera que el servicio de geocodificación regresa la latitud y longitud tempranamente para que éstos sean pasados como argumentos en la petición del clima.  Para esto, es importante abordar primeramente lo que se conoce en Node.js como <strong>callbacks</strong>. Un <strong>callback</strong> (llamada de vuelta) es una <strong>función</strong> que recibe como argumento otra <strong>función</strong> y es invocada cuando el resultado de la operación se completa. Por ejemplo, en  la siguiente función, la función <code>setTimeout</code> implementa una función callback, la cual mediante una función flecha imprimirá un mensaje en consola,</p>
-<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">=&gt;</span><span class="token punctuation">{</span>
-console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Two seconds are up!"</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token number">2000</span><span class="token punctuation">)</span>
-</code></pre>
-<p>Es importante tener en cuenta que cuando se pasa un <em>callback</em> solo se pasa la definición de la función y la función contenedora elige cuándo ejecutar el callback. El uso del <em>callback</em> también se conoce como <em>callback pattern</em>, puesto que es esencialmente un patrón de diseño en el desarrollo de sistemas, al ser una solución para problemas comunes , ayudando a no repetir código. Por otro lado, los <em>callbacks</em> son muy útiles para manejar la programación asíncrona en Node.js</p>
-<h4 id="el-patrón-de-diseño-callback">El patrón de diseño Callback</h4>
-<p>Cómo se mencionó, un <strong>callback</strong> (llamada de vuelta) es una <strong>función</strong> que recibe como argumento otra <strong>función</strong> y es invocada cuando el resultado de la operación se completa. En la programación funcional esta forma de propagar el resultado es llamada <strong>continuation-passing style</strong> (CPS). Es un concepto general y no es asociado siempre con operaciones asíncronas, sólo indica que un resultado es propagado mediante el paso de este a otra función (la función callback), en lugar de regresar directamente a la función que lo llama. Para clarificar el concepto analicemos la siguiente explicación demostrativa en un video.</p>
-<h4 id="actividad-4">Actividad</h4>
-<ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Vea el siguiente video para comprender el funcionamiento del patrón de diseño Callback.</li>
-</ul>
-<p><mark>Funcionamiento de los Callback en Node.js</mark><br>
-<a href="http://www.youtube.com/watch?v=tGH88apAH90"><img src="http://img.youtube.com/vi/tGH88apAH90/0.jpg" alt=""></a></p>
-<h5 id="explicación-detallada">Explicación detallada</h5>
-<p>Analicemos la función sincrona siguiente:</p>
-<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">function</span> <span class="token function">add</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  <span class="token keyword">return</span> a <span class="token operator">+</span> b<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p>No hay nada especial aquí; el resultado se devuelve cuando se manda llamar la función mediante la instrucción <code>return</code> . A esto se le conoce como  <strong>direct-style</strong> y representa la forma más común de devolver un resultado en la programación síncrona. El <strong>continuation-passin style</strong> de la función anterior sería el siguiente:</p>
-<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">function</span> <span class="token function">add</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">,</span> callback<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  <span class="token function">callback</span><span class="token punctuation">(</span>a <span class="token operator">+</span> b<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p>La función <code>add()</code> es una función CPS síncrona, lo que significa que regresará el valor sólo cuando el callback compete su ejecución. El siguiente código demuestra esto:</p>
-<pre class=" language-javascript"><code class="prism  language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Antes'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token function">add</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Result: '</span> <span class="token operator">+</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Despues'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre>
-<p>Debido a que la función <code>add()</code>  es síncrona el código anterior imprimirá tal cual en el orden que está cada instrucción.</p>
-<pre class=" language-markup"><code class="prism  language-markup">Antes
-Result: 3
-Después
-</code></pre>
-<p>Ahora, consideremos el caso donde la función <code>add ()</code> es asíncrona, que es la siguiente:</p>
-<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">function</span> <span class="token function">addAsync</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">,</span> callback<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  <span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token function">callback</span><span class="token punctuation">(</span>a <span class="token operator">+</span> b<span class="token punctuation">)</span><span class="token punctuation">;</span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p>En el código anterior, simplemente usamos <code>setTimeout ()</code> para simular una invocación asincrónica del callback. Al mandar llamar la función se podrá observar como cambia el orden de las operaciones, analice el siguiente código:</p>
-<pre class=" language-javascript"><code class="prism  language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Antes'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token function">addAsync</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Result: '</span> <span class="token operator">+</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Después'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre>
-<p>El código anterior imprimirá el siguiente resultado:</p>
-<pre class=" language-markup"><code class="prism  language-markup">Antes
-Después
-Result: 3
-</code></pre>
-<p>Dado que <code>setTimeout ()</code> desencadena una operación asincrónica, ya no esperará a que se ejecute la devolución de llamada, sino que, en cambio, regresa inmediatamente y devuelve el control a <code>addAsync ()</code>, y luego regresa a la instrucción que la manda llamar. Esta propiedad de Node.js es crucial, ya que permite que la pila se desenrolle y que el control se devuelva al bucle de eventos tan pronto como se envíe una solicitud asincrónica, permitiendo así que se procese un nuevo evento de la cola; por lo cual, se ejecuta el <code>console.log('Después')</code> al no esperar a que la función <code>callback</code>termine su ejecución.</p>
-<h4 id="actividad-5">Actividad</h4>
-<ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Reestructure la función para solicitar el pronóstico como un callback.</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Reestructure la función para solicitar la geocodificación de una ubicación para obtener su latitud y longitud como una función callback.</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> Enecadene ambas funciones para asegurarse que se ejecute primero el servicio de geocodificación y posteriormente el de la solicitud del climra</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="">  Vea el siguiente video para comprender  cómo hacer los puntos anterirores.</li>
-</ul>
-<p><mark>Sexta Parte: Aplicación Meteorológica</mark></p>
-<hr>
-<p><a href="http://www.youtube.com/watch?v=De0NAwwAxkA"><img src="http://img.youtube.com/vi/De0NAwwAxkA/0.jpg" alt=""></a></p>
-</div>
-</body>
-
-</html>
